@@ -1,0 +1,23 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+  
+  # mqttx-web:
+  #   image: emqx/mqttx-web
+  #   ports:
+  #     - "8080:80"
+  
+  # Автоматический подписчик на топик clipboard/update
+  mqtt-subscriber:
+    image: eclipse-mosquitto
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+    command: sh -c "echo 'Starting clipboard topic subscriber...' && mosquitto_sub -h mosquitto -t 'clipboard/update' -v"
+    networks:
+      - default
